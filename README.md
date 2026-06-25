@@ -220,8 +220,10 @@ psql -U postgres -d your_database -f sql/03_analytics_queries.sql
 
 ## 👤 Author
 
-**Your Name**  
-[LinkedIn](https://linkedin.com/in/yourprofile) · [GitHub](https://github.com/yourusername)
+**Sunny PAndey**  
+
+<img width="2891" height="2171" alt="star_schema_diagram" src="https://github.com/user-attachments/assets/e39a0c31-bbfa-4c0d-8230-9e67fefcfa0f" />
+
 
 ---
 
