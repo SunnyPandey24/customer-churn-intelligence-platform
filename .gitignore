@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Power BI
+*.pbix
+
+# Large data files (use Git LFS or host externally)
+# data/*.csv  # Uncomment if dataset is too large for GitHub
+
+# IDE
+.vscode/
+.idea/

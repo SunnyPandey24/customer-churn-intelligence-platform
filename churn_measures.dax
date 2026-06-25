@@ -1,0 +1,249 @@
+// ============================================================
+// Customer Churn Intelligence Platform
+// DAX Measures — Power BI
+// Paste each measure into the corresponding table in Power BI
+// ============================================================
+
+
+// ─────────────────────────────────────────────
+// TABLE: _Measures  (dedicated measures table)
+// ─────────────────────────────────────────────
+
+// ── Core KPIs ─────────────────────────────────
+
+Total Customers = 
+COUNTROWS(fact_customer_churn)
+
+Total Churned = 
+CALCULATE(
+    COUNTROWS(fact_customer_churn),
+    fact_customer_churn[churn_flag] = 1
+)
+
+Churn Rate % = 
+DIVIDE([Total Churned], [Total Customers], 0)
+
+Churn Rate % Fmt = 
+FORMAT([Churn Rate %], "0.00%")
+
+Total Retained = 
+[Total Customers] - [Total Churned]
+
+Retention Rate % = 
+1 - [Churn Rate %]
+
+
+// ── Revenue Metrics ────────────────────────────
+
+Monthly Revenue Total = 
+SUM(fact_customer_churn[monthly_charges])
+
+Monthly Revenue At Risk = 
+CALCULATE(
+    SUM(fact_customer_churn[monthly_charges]),
+    fact_customer_churn[churn_flag] = 1
+)
+
+Annual Revenue At Risk = 
+[Monthly Revenue At Risk] * 12
+
+Monthly Revenue Retained = 
+CALCULATE(
+    SUM(fact_customer_churn[monthly_charges]),
+    fact_customer_churn[churn_flag] = 0
+)
+
+Avg ARPU Churned = 
+CALCULATE(
+    AVERAGE(fact_customer_churn[monthly_charges]),
+    fact_customer_churn[churn_flag] = 1
+)
+
+Avg ARPU Retained = 
+CALCULATE(
+    AVERAGE(fact_customer_churn[monthly_charges]),
+    fact_customer_churn[churn_flag] = 0
+)
+
+ARPU Lift (Retained vs Churned) = 
+[Avg ARPU Churned] - [Avg ARPU Retained]
+
+Total Revenue (Lifetime) = 
+SUM(fact_customer_churn[total_charges])
+
+Avg CLV = 
+AVERAGE(fact_customer_churn[clv_score])
+
+Avg CLV Churned = 
+CALCULATE(
+    AVERAGE(fact_customer_churn[clv_score]),
+    fact_customer_churn[churn_flag] = 1
+)
+
+
+// ── Tenure Metrics ────────────────────────────
+
+Avg Tenure Months = 
+AVERAGE(fact_customer_churn[tenure_months])
+
+Avg Tenure Churned = 
+CALCULATE(
+    AVERAGE(fact_customer_churn[tenure_months]),
+    fact_customer_churn[churn_flag] = 1
+)
+
+Avg Tenure Retained = 
+CALCULATE(
+    AVERAGE(fact_customer_churn[tenure_months]),
+    fact_customer_churn[churn_flag] = 0
+)
+
+
+// ── Contract Analysis ─────────────────────────
+
+Churn Rate Month-to-Month = 
+CALCULATE(
+    [Churn Rate %],
+    dim_contract[contract_type] = "Month-to-month"
+)
+
+Churn Rate One Year = 
+CALCULATE(
+    [Churn Rate %],
+    dim_contract[contract_type] = "One year"
+)
+
+Churn Rate Two Year = 
+CALCULATE(
+    [Churn Rate %],
+    dim_contract[contract_type] = "Two year"
+)
+
+Month-to-Month Revenue At Risk = 
+CALCULATE(
+    [Monthly Revenue At Risk],
+    dim_contract[contract_type] = "Month-to-month"
+)
+
+
+// ── Payment Method Analysis ───────────────────
+
+Churn Rate Electronic Check = 
+CALCULATE(
+    [Churn Rate %],
+    dim_payment[payment_method] = "Electronic check"
+)
+
+Auto-Pay Churn Rate = 
+CALCULATE(
+    [Churn Rate %],
+    dim_payment[is_auto_pay] = TRUE()
+)
+
+Manual-Pay Churn Rate = 
+CALCULATE(
+    [Churn Rate %],
+    dim_payment[is_auto_pay] = FALSE()
+)
+
+Auto vs Manual Churn Gap = 
+[Manual-Pay Churn Rate] - [Auto-Pay Churn Rate]
+
+
+// ── Internet Service Analysis ─────────────────
+
+Churn Rate Fiber Optic = 
+CALCULATE(
+    [Churn Rate %],
+    dim_internet_service[internet_service] = "Fiber optic"
+)
+
+Churn Rate DSL = 
+CALCULATE(
+    [Churn Rate %],
+    dim_internet_service[internet_service] = "DSL"
+)
+
+Fiber vs DSL Churn Gap = 
+[Churn Rate Fiber Optic] - [Churn Rate DSL]
+
+No Security Churn Rate = 
+CALCULATE(
+    [Churn Rate %],
+    dim_internet_service[online_security] = "No",
+    dim_internet_service[internet_service] <> "No"
+)
+
+With Security Churn Rate = 
+CALCULATE(
+    [Churn Rate %],
+    dim_internet_service[online_security] = "Yes"
+)
+
+
+// ── Senior Citizen Segment ────────────────────
+
+Senior Churn Rate = 
+CALCULATE(
+    [Churn Rate %],
+    dim_demographics[senior_citizen] = 1
+)
+
+Non-Senior Churn Rate = 
+CALCULATE(
+    [Churn Rate %],
+    dim_demographics[senior_citizen] = 0
+)
+
+Senior vs NonSenior Churn Gap = 
+[Senior Churn Rate] - [Non-Senior Churn Rate]
+
+
+// ── Comparison vs Benchmark ───────────────────
+
+Churn Rate vs Overall = 
+VAR CurrentRate = [Churn Rate %]
+VAR OverallRate = CALCULATE([Churn Rate %], ALL(fact_customer_churn))
+RETURN CurrentRate - OverallRate
+
+Is Above Avg Churn = 
+IF([Churn Rate vs Overall] > 0, "⚠ Above Avg", "✓ Below Avg")
+
+
+// ── Risk Scoring (for heatmaps) ───────────────
+
+Churn Risk Score = 
+VAR ChurnRt = [Churn Rate %]
+RETURN
+    SWITCH(
+        TRUE(),
+        ChurnRt >= 0.40, "🔴 Critical",
+        ChurnRt >= 0.25, "🟠 High",
+        ChurnRt >= 0.15, "🟡 Medium",
+        "🟢 Low"
+    )
+
+Revenue At Risk Share % = 
+DIVIDE(
+    [Monthly Revenue At Risk],
+    CALCULATE([Monthly Revenue Total], ALL(fact_customer_churn)),
+    0
+)
+
+
+// ── Dynamic Title Measures (for report headers) ──
+
+Selected Segment Title = 
+IF(
+    ISFILTERED(dim_contract[contract_type]),
+    "Contract: " & SELECTEDVALUE(dim_contract[contract_type], "Multiple"),
+    IF(
+        ISFILTERED(dim_internet_service[internet_service]),
+        "Service: " & SELECTEDVALUE(dim_internet_service[internet_service], "Multiple"),
+        "All Customers"
+    )
+)
+
+KPI Subtitle = 
+"As of " & FORMAT(TODAY(), "MMM YYYY") &
+" | " & FORMAT([Total Customers], "#,##0") & " customers analysed"
