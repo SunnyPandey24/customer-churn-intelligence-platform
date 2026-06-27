@@ -223,6 +223,14 @@ psql -U postgres -d your_database -f sql/03_analytics_queries.sql
 **Sunny PAndey**  
 
 <img width="2891" height="2171" alt="star_schema_diagram" src="https://github.com/user-attachments/assets/e39a0c31-bbfa-4c0d-8230-9e67fefcfa0f" />
+<img width="2389" height="740" alt="03_revenue_at_risk" src="https://github.com/user-attachments/assets/4cbd2a59-1748-4b8b-9184-462957ec90ef" />
+<img width="1189" height="584" alt="02_churn_by_contract" src="https://github.com/user-attachments/assets/f17968d2-bcb8-482d-a7a8-1dc8e269c561" />
+<img width="784" height="882" alt="01_churn_distribution" src="https://github.com/user-attachments/assets/7d7875a5-6171-40c5-8811-2cf774d157fc" />
+<img width="1184" height="582" alt="08_internet_security_churn" src="https://github.com/user-attachments/assets/6eaecc91-75b4-42df-9542-955ac92865aa" />
+<img width="1334" height="733" alt="07_churn_by_payment" src="https://github.com/user-attachments/assets/25d01c25-0a16-4ec8-8e81-4cb77fdfeb7c" />
+<img width="1015" height="884" alt="06_correlation_heatmap" src="https://github.com/user-attachments/assets/16b21155-bc01-4dd1-8ebe-141cb0e3b89d" />
+<img width="1334" height="732" alt="05_charges_distribution" src="https://github.com/user-attachments/assets/b9ea6373-5f63-40d9-94ec-1087b14777a8" />
+<img width="1184" height="583" alt="04_churn_by_tenure" src="https://github.com/user-attachments/assets/c6dbdcd2-c353-4407-afae-0661a8178888" />
 
 
 ---
