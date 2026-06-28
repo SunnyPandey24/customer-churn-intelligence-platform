@@ -5,6 +5,7 @@
 ---
 Live Demo
 GitHub Pages: https://sunnypandey24.github.io/customer-churn-intelligence-platform/
+one more demo :- https://sunnypandey24.github.io/customer-churn-intelligence-platform-live-link/
 Repository: https://github.com/SunnyPandey24/customer-churn-intelligence-platform
 
 ## 🔍 Project Summary
