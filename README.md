@@ -3,6 +3,9 @@
 > **End-to-end churn analytics pipeline** built on SQL star-schema modeling, Python EDA, advanced DAX, and interactive Power BI executive dashboards — analyzing **7,043 telecom customers** to quantify revenue loss and surface actionable retention drivers.
 
 ---
+Live Demo
+GitHub Pages: https://sunnypandey24.github.io/customer-churn-intelligence-platform/
+Repository: https://github.com/SunnyPandey24/customer-churn-intelligence-platform
 
 ## 🔍 Project Summary
 
