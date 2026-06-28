@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Churn Intelligence Platform | Enterprise Analytics Showcase</title>
+  <meta name="description" content="Enterprise-grade churn analytics showcase with slicers, KPIs, pivot analysis, what-if simulation, CSV export, and Power BI embed integration." />
+  <style>
+    :root{
+      --bg:#0a1220;
+      --panel:#111b2f;
+      --panel-2:#15233b;
+      --text:#e7eefc;
+      --muted:#9eb2d8;
+      --accent:#5b8dff;
+      --good:#3ddc97;
+      --warn:#ffd166;
+      --bad:#ff6b6b;
+      --line:#2a416d;
+      --radius:14px;
+      --shadow:0 12px 30px rgba(0,0,0,.28);
+    }
+    body.light{
+      --bg:#f4f7fc;
+      --panel:#ffffff;
+      --panel-2:#f5f8ff;
+      --text:#12233f;
+      --muted:#4e6389;
+      --accent:#275dff;
+      --good:#169b62;
+      --warn:#b78103;
+      --bad:#cc3d3d;
+      --line:#dbe4f2;
+      --shadow:0 10px 24px rgba(22,37,66,.08);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:var(--bg);
+      transition:.2s ease;
+    }
+    .container{max-width:1380px;margin:0 auto;padding:16px}
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .toolbar{
+      display:flex;gap:8px;flex-wrap:wrap;align-items:center
+    }
+    .btn{
+      border:1px solid var(--line);
+      background:var(--panel-2);
+      color:var(--text);
+      border-radius:10px;
+      padding:8px 12px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .btn.primary{background:var(--accent);color:#fff;border-color:transparent}
+    .btn.good{background:var(--good);color:#fff;border-color:transparent}
+    .btn.warn{background:var(--warn);color:#1f1f1f;border-color:transparent}
+
+    .header{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    .head-left,.head-right{padding:16px}
+    .badge{
+      display:inline-block;
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+      background:var(--panel-2);
+      border:1px solid var(--line);
+      padding:6px 10px;border-radius:999px;
+      color:var(--muted);
+    }
+    h1{margin:10px 0 8px;font-size:28px}
+    .sub{color:var(--muted);margin:0}
+    .kpi-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+    .kpi{
+      background:var(--panel-2);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px;
+    }
+    .kpi .l{font-size:11px;text-transform:uppercase;color:var(--muted)}
+    .kpi .v{font-size:24px;font-weight:800;margin-top:4px}
+    .kpi .s{font-size:12px;margin-top:4px}
+    .good{color:var(--good)} .bad{color:var(--bad)} .warn{color:var(--warn)}
+
+    .section{padding:14px;margin-bottom:12px}
+    .title-row{
+      display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap
+    }
+    .title-row h2,.title-row h3{margin:0}
+    .filters-grid{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns:repeat(6,minmax(0,1fr));
+      gap:10px;
+    }
+    .control{
+      background:var(--panel-2);
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:8px;
+    }
+    .control label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    .control select,.control input{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:8px;
+      padding:8px;
+      background:var(--panel);
+      color:var(--text);
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:repeat(12,minmax(0,1fr));
+      gap:12px;
+    }
+    .span-3{grid-column:span 3}
+    .span-4{grid-column:span 4}
+    .span-5{grid-column:span 5}
+    .span-6{grid-column:span 6}
+    .span-7{grid-column:span 7}
+    .span-8{grid-column:span 8}
+    .span-12{grid-column:span 12}
+    .panel{padding:12px}
+    canvas{width:100%!important;height:300px!important}
+
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:9px;border-bottom:1px solid var(--line);font-size:13px;text-align:left}
+    th{cursor:pointer;background:var(--panel-2)}
+    tr:hover td{background:rgba(127,127,127,.05)}
+
+    .table-meta{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px
+    }
+    .tiny{font-size:12px;color:var(--muted)}
+    .pill{
+      font-size:11px;padding:5px 8px;border-radius:999px;border:1px solid var(--line);background:var(--panel-2)
+    }
+
+    iframe{
+      width:100%;
+      min-height:420px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+    }
+
+    @media (max-width:1150px){
+      .header{grid-template-columns:1fr}
+      .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .filters-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .span-3,.span-4,.span-5,.span-6,.span-7,.span-8,.span-12{grid-column:span 12}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <section class="header">
+      <div class="card head-left">
+        <span class="badge">Enterprise Analytics Portfolio</span>
+        <h1>Customer Churn Intelligence Platform</h1>
+        <p class="sub">
+          A production-style analytics experience: real slicers, live KPIs, dynamic pivoting,
+          what-if simulation, export, and Power BI embedding.
+        </p>
+
+        <div class="kpi-grid">
+          <div class="kpi"><div class="l">Customers</div><div id="kpiCustomers" class="v">0</div><div id="kpiCustomersS" class="s tiny">—</div></div>
+          <div class="kpi"><div class="l">Churn Rate</div><div id="kpiChurn" class="v">0%</div><div id="kpiChurnS" class="s tiny">—</div></div>
+          <div class="kpi"><div class="l">At-Risk MRR</div><div id="kpiRisk" class="v">$0</div><div id="kpiRiskS" class="s tiny">—</div></div>
+          <div class="kpi"><div class="l">Retention Opportunity</div><div id="kpiOpp" class="v">$0</div><div id="kpiOppS" class="s tiny">—</div></div>
+        </div>
+      </div>
+
+      <div class="card head-right">
+        <div class="title-row" style="margin-bottom:10px">
+          <h3>Control Center</h3>
+          <span id="lastRefreshed" class="pill">Last refresh: --</span>
+        </div>
+        <div class="toolbar">
+          <button class="btn" id="themeToggle">Toggle Theme</button>
+          <button class="btn" id="resetFilters">Reset Filters</button>
+          <button class="btn good" id="exportCsv">Export Filtered CSV</button>
+          <button class="btn warn" id="simulateBtn">Run What-if</button>
+        </div>
+        <div style="margin-top:10px" class="control">
+          <label for="whatIfReduction">What-if: Churn reduction target (%)</label>
+          <input id="whatIfReduction" type="range" min="0" max="40" value="12" />
+          <div class="tiny">Adjust and click “Run What-if” to estimate recoverable MRR.</div>
+        </div>
+        <div class="control" style="margin-top:10px">
+          <label>Executive Auto Insight</label>
+          <div id="autoInsight" class="tiny">Insights will appear after data is rendered.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="card section">
+      <div class="title-row">
+        <h2>Advanced Slicers</h2>
+        <span class="tiny">All visuals below are synchronized with these filters.</span>
+      </div>
+      <div class="filters-grid">
+        <div class="control">
+          <label>Segment</label>
+          <select id="segmentFilter">
+            <option value="All">All</option><option>Enterprise</option><option>SMB</option><option>Consumer</option>
+          </select>
+        </div>
+        <div class="control">
+          <label>Contract</label>
+          <select id="contractFilter">
+            <option value="All">All</option><option>Month-to-month</option><option>One year</option><option>Two year</option>
+          </select>
+        </div>
+        <div class="control">
+          <label>Region</label>
+          <select id="regionFilter">
+            <option value="All">All</option><option>North</option><option>South</option><option>East</option><option>West</option>
+          </select>
+        </div>
+        <div class="control">
+          <label>Tenure ≥ (months)</label>
+          <input id="tenureMin" type="number" min="0" max="72" value="0" />
+        </div>
+        <div class="control">
+          <label>Risk Band</label>
+          <select id="riskFilter">
+            <option value="All">All</option><option value="Low">Low (&lt;30)</option><option value="Medium">Medium (30-54)</option><option value="High">High (55+)</option>
+          </select>
+        </div>
+        <div class="control">
+          <label>Search in Pivot (segment/contract)</label>
+          <input id="searchPivot" type="text" placeholder="Type to search..." />
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="layout">
+      <div class="card panel span-8"><h3>Monthly Churn Trend</h3><canvas id="trendChart"></canvas></div>
+      <div class="card panel span-4"><h3>Contract Churn Mix</h3><canvas id="contractChart"></canvas></div>
+      <div class="card panel span-6"><h3>Segment Churn Rate</h3><canvas id="segmentChart"></canvas></div>
+      <div class="card panel span-6"><h3>Risk Distribution</h3><canvas id="riskChart"></canvas></div>
+      <div class="card panel span-5"><h3>Regional Churn Rate</h3><canvas id="regionChart"></canvas></div>
+      <div class="card panel span-7"><h3>Revenue at Risk by Month</h3><canvas id="riskRevenueChart"></canvas></div>
+    </section>
+
+    <!-- Pivot -->
+    <section class="card section">
+      <div class="table-meta">
+        <div class="title-row">
+          <h3>Pivot-style Cohort Table</h3>
+          <span id="rowInfo" class="tiny">Rows: 0</span>
+        </div>
+        <div class="toolbar">
+          <button class="btn" id="prevPage">Prev</button>
+          <span id="pageInfo" class="pill">Page 1</span>
+          <button class="btn" id="nextPage">Next</button>
+        </div>
+      </div>
+      <div style="overflow:auto">
+        <table>
+          <thead>
+            <tr>
+              <th data-sort="segment">Segment ↕</th>
+              <th data-sort="contract">Contract ↕</th>
+              <th data-sort="customers">Customers ↕</th>
+              <th data-sort="churned">Churned ↕</th>
+              <th data-sort="rate">Churn Rate ↕</th>
+              <th data-sort="mrr">MRR ↕</th>
+            </tr>
+          </thead>
+          <tbody id="pivotBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Power BI Embed -->
+    <section class="card section">
+      <div class="title-row">
+        <h3>Power BI Embedded Experience</h3>
+        <span class="tiny">Paste your publish-to-web embed URL to make this portfolio feel truly enterprise.</span>
+      </div>
+      <div class="filters-grid" style="grid-template-columns:1fr auto;">
+        <div class="control">
+          <label>Power BI Embed URL (publish to web iframe src)</label>
+          <input id="pbiUrl" type="text" placeholder="https://app.powerbi.com/view?r=..." />
+        </div>
+        <div class="toolbar" style="align-self:end">
+          <button class="btn primary" id="loadPbi">Load Embed</button>
+          <button class="btn" id="clearPbi">Clear</button>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <iframe id="pbiFrame" title="Power BI Dashboard" src=""></iframe>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // ---------------------------
+    // Data model (synthetic realistic)
+    // ---------------------------
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const segments = ["Enterprise","SMB","Consumer"];
+    const contracts = ["Month-to-month","One year","Two year"];
+    const regions = ["North","South","East","West"];
+    const pageSize = 8;
+
+    function seededRand(seed){ const x = Math.sin(seed) * 10000; return x - Math.floor(x); }
+
+    const dataset = [];
+    let uid = 1;
+    for(let m=0;m<12;m++){
+      for(let i=0;i<460;i++){
+        const r1=seededRand(uid*1.17), r2=seededRand(uid*1.79), r3=seededRand(uid*2.41), r4=seededRand(uid*3.07), r5=seededRand(uid*3.71);
+        const segment = r1<0.24 ? "Enterprise" : (r1<0.61 ? "SMB" : "Consumer");
+        const contract = r2<0.57 ? "Month-to-month" : (r2<0.82 ? "One year" : "Two year");
+        const region = regions[Math.floor(r3*regions.length)];
+        const tenure = Math.floor(r4*73);
+
+        const baseMRR = segment==="Enterprise" ? 440 : (segment==="SMB" ? 160 : 72);
+        const mrr = Math.round((baseMRR + r5*85) * (contract==="Month-to-month"?1:contract==="One year"?0.95:0.9));
+
+        let p = 0.09;
+        if(contract==="Month-to-month") p += 0.23;
+        if(contract==="One year") p += 0.06;
+        if(tenure<12) p += 0.12;
+        if(segment==="SMB") p += 0.04;
+        if(segment==="Consumer") p += 0.03;
+        if(region==="South") p += 0.02;
+        if(region==="West") p -= 0.01;
+        p = Math.max(0.02,Math.min(0.78,p));
+
+        const churned = seededRand(uid*4.23) < p ? 1 : 0;
+        const riskScore = Math.round(p*100);
+
+        dataset.push({ id:uid++, month:months[m], segment, contract, region, tenure, mrr, churned, riskScore });
+      }
+    }
+
+    // ---------------------------
+    // DOM references
+    // ---------------------------
+    const el = id => document.getElementById(id);
+    const fSegment=el("segmentFilter"), fContract=el("contractFilter"), fRegion=el("regionFilter"), fTenure=el("tenureMin"), fRisk=el("riskFilter"), fSearch=el("searchPivot");
+    const kpiCustomers=el("kpiCustomers"), kpiChurn=el("kpiChurn"), kpiRisk=el("kpiRisk"), kpiOpp=el("kpiOpp");
+    const kpiCustomersS=el("kpiCustomersS"), kpiChurnS=el("kpiChurnS"), kpiRiskS=el("kpiRiskS"), kpiOppS=el("kpiOppS");
+    const autoInsight=el("autoInsight"), lastRefreshed=el("lastRefreshed");
+
+    // ---------------------------
+    // Formatters
+    // ---------------------------
+    const fmtInt=n=>n.toLocaleString("en-US");
+    const fmtMoney=n=>"$"+Math.round(n).toLocaleString("en-US");
+    const fmtPct=n=>`${n.toFixed(1)}%`;
+
+    // ---------------------------
+    // Filtering + aggregation
+    // ---------------------------
+    function riskBand(score){ return score<30 ? "Low" : score<55 ? "Medium" : "High"; }
+
+    function getFiltered(){
+      return dataset.filter(d =>
+        (fSegment.value==="All" || d.segment===fSegment.value) &&
+        (fContract.value==="All" || d.contract===fContract.value) &&
+        (fRegion.value==="All" || d.region===fRegion.value) &&
+        d.tenure >= Number(fTenure.value||0) &&
+        (fRisk.value==="All" || riskBand(d.riskScore)===fRisk.value)
+      );
+    }
+
+    function summary(rows){
+      const customers=rows.length;
+      const churned=rows.reduce((s,d)=>s+d.churned,0);
+      const churnRate=customers? (churned/customers)*100 : 0;
+      const atRiskMRR=rows.filter(d=>d.riskScore>=55).reduce((s,d)=>s+d.mrr,0);
+      const totalMRR=rows.reduce((s,d)=>s+d.mrr,0);
+      return {customers,churned,churnRate,atRiskMRR,totalMRR};
+    }
+
+    function byMonthRate(rows){
+      return months.map(m=>{
+        const a=rows.filter(d=>d.month===m); if(!a.length) return 0;
+        return a.reduce((s,d)=>s+d.churned,0)/a.length*100;
+      });
+    }
+    function byMonthRiskMRR(rows){
+      return months.map(m=>rows.filter(d=>d.month===m && d.riskScore>=55).reduce((s,d)=>s+d.mrr,0));
+    }
+    function byContractChurn(rows){
+      return contracts.map(c=>rows.filter(d=>d.contract===c).reduce((s,d)=>s+d.churned,0));
+    }
+    function bySegmentRate(rows){
+      return segments.map(s=>{
+        const a=rows.filter(d=>d.segment===s); if(!a.length) return 0;
+        return a.reduce((x,d)=>x+d.churned,0)/a.length*100;
+      });
+    }
+    function byRegionRate(rows){
+      return regions.map(r=>{
+        const a=rows.filter(d=>d.region===r); if(!a.length) return 0;
+        return a.reduce((x,d)=>x+d.churned,0)/a.length*100;
+      });
+    }
+    function riskDist(rows){
+      let low=0,med=0,high=0;
+      rows.forEach(d=>{ const b=riskBand(d.riskScore); if(b==="Low")low++; else if(b==="Medium")med++; else high++; });
+      return [low,med,high];
+    }
+
+    function pivot(rows){
+      const map=new Map();
+      rows.forEach(d=>{
+        const key=`${d.segment}|${d.contract}`;
+        if(!map.has(key)) map.set(key,{segment:d.segment,contract:d.contract,customers:0,churned:0,mrr:0});
+        const x=map.get(key); x.customers++; x.churned+=d.churned; x.mrr+=d.mrr;
+      });
+      return [...map.values()].map(r=>({...r,rate:r.customers? (r.churned/r.customers*100):0}));
+    }
+
+    // ---------------------------
+    // Charts
+    // ---------------------------
+    Chart.defaults.color = getComputedStyle(document.body).getPropertyValue('--text');
+    Chart.defaults.borderColor = getComputedStyle(document.body).getPropertyValue('--line');
+
+    const trendChart = new Chart(el("trendChart"),{
+      type:"line",
+      data:{labels:months,datasets:[{label:"Churn %",data:[],borderColor:"#5b8dff",backgroundColor:"rgba(91,141,255,.2)",fill:true,tension:.3}]},
+      options:{responsive:true,maintainAspectRatio:false}
+    });
+    const contractChart = new Chart(el("contractChart"),{
+      type:"doughnut",
+      data:{labels:contracts,datasets:[{data:[],backgroundColor:["#ff6b6b","#ffd166","#3ddc97"]}]},
+      options:{responsive:true,maintainAspectRatio:false}
+    });
+    const segmentChart = new Chart(el("segmentChart"),{
+      type:"bar",
+      data:{labels:segments,datasets:[{label:"Churn %",data:[],backgroundColor:["#7da4ff","#5b8dff","#3768d8"]}]},
+      options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,max:70}}}
+    });
+    const riskChart = new Chart(el("riskChart"),{
+      type:"polarArea",
+      data:{labels:["Low","Medium","High"],datasets:[{data:[],backgroundColor:["rgba(61,220,151,.68)","rgba(255,209,102,.72)","rgba(255,107,107,.78)"]}]},
+      options:{responsive:true,maintainAspectRatio:false}
+    });
+    const regionChart = new Chart(el("regionChart"),{
+      type:"radar",
+      data:{labels:regions,datasets:[{label:"Regional Churn %",data:[],borderColor:"#5b8dff",backgroundColor:"rgba(91,141,255,.18)"}]},
+      options:{responsive:true,maintainAspectRatio:false,scales:{r:{beginAtZero:true,max:60}}}
+    });
+    const riskRevenueChart = new Chart(el("riskRevenueChart"),{
+      type:"bar",
+      data:{labels:months,datasets:[{label:"At-Risk MRR",data:[],backgroundColor:"#ff6b6b"}]},
+      options:{responsive:true,maintainAspectRatio:false}
+    });
+
+    // ---------------------------
+    // Pivot controls
+    // ---------------------------
+    let sortKey="customers", sortDir="desc", page=1;
+
+    function sortRows(rows){
+      const m = sortDir==="asc" ? 1 : -1;
+      return rows.sort((a,b)=>{
+        const A=a[sortKey], B=b[sortKey];
+        if(typeof A==="string") return A.localeCompare(B)*m;
+        return (A-B)*m;
+      });
+    }
+
+    function renderPivot(allRows){
+      let rows = [...allRows];
+      const q = fSearch.value.trim().toLowerCase();
+      if(q){
+        rows = rows.filter(r => (r.segment+" "+r.contract).toLowerCase().includes(q));
+      }
+
+      rows = sortRows(rows);
+      const totalPages = Math.max(1,Math.ceil(rows.length/pageSize));
+      if(page>totalPages) page=totalPages;
+      const start=(page-1)*pageSize;
+      const paged = rows.slice(start,start+pageSize);
+
+      el("rowInfo").textContent=`Rows: ${rows.length}`;
+      el("pageInfo").textContent=`Page ${page} / ${totalPages}`;
+
+      const body = el("pivotBody");
+      body.innerHTML = paged.length ? paged.map(r=>`
+        <tr>
+          <td>${r.segment}</td>
+          <td>${r.contract}</td>
+          <td>${fmtInt(r.customers)}</td>
+          <td>${fmtInt(r.churned)}</td>
+          <td>${fmtPct(r.rate)}</td>
+          <td>${fmtMoney(r.mrr)}</td>
+        </tr>
+      `).join("") : `<tr><td colspan="6">No matching rows.</td></tr>`;
+    }
+
+    // ---------------------------
+    // What-if simulation
+    // ---------------------------
+    function runWhatIf(current){
+      const reduction = Number(el("whatIfReduction").value||0); // %
+      const recoverable = current.atRiskMRR * (reduction/100);
+      kpiOpp.textContent = fmtMoney(recoverable);
+      kpiOppS.textContent = `If churn reduces by ${reduction}% in high-risk cohort`;
+      kpiOppS.className = "s good";
+    }
+
+    // ---------------------------
+    // Export CSV
+    // ---------------------------
+    function exportCSV(rows){
+      const headers=["id","month","segment","contract","region","tenure","mrr","churned","riskScore","riskBand"];
+      const lines=[headers.join(",")];
+      rows.forEach(d=>{
+        lines.push([d.id,d.month,d.segment,d.contract,d.region,d.tenure,d.mrr,d.churned,d.riskScore,riskBand(d.riskScore)].join(","));
+      });
+      const blob = new Blob([lines.join("\n")],{type:"text/csv;charset=utf-8;"});
+      const a=document.createElement("a");
+      a.href=URL.createObjectURL(blob);
+      a.download="filtered_churn_data.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    // ---------------------------
+    // Insights
+    // ---------------------------
+    function buildInsight(rows,s){
+      if(!rows.length){ autoInsight.textContent="No data available for selected filters. Reset filters to continue analysis."; return; }
+
+      const segRates = segments.map(seg=>{
+        const a=rows.filter(d=>d.segment===seg);
+        const rate = a.length ? a.reduce((x,d)=>x+d.churned,0)/a.length*100 : 0;
+        return {seg,rate};
+      }).sort((a,b)=>b.rate-a.rate);
+
+      const cRates = contracts.map(c=>{
+        const a=rows.filter(d=>d.contract===c);
+        const rate = a.length ? a.reduce((x,d)=>x+d.churned,0)/a.length*100 : 0;
+        return {c,rate};
+      }).sort((a,b)=>b.rate-a.rate);
+
+      autoInsight.innerHTML = `
+        Highest segment risk: <b>${segRates[0].seg}</b> (${fmtPct(segRates[0].rate)}). 
+        Highest contract risk: <b>${cRates[0].c}</b> (${fmtPct(cRates[0].rate)}). 
+        Current filtered churn is <b>${fmtPct(s.churnRate)}</b> across <b>${fmtInt(s.customers)}</b> customers, 
+        with <b>${fmtMoney(s.atRiskMRR)}</b> at-risk MRR requiring proactive retention.
+      `;
+    }
+
+    // ---------------------------
+    // Render
+    // ---------------------------
+    function render(){
+      const filtered = getFiltered();
+      const s = summary(filtered);
+
+      // KPI
+      kpiCustomers.textContent = fmtInt(s.customers);
+      kpiChurn.textContent = fmtPct(s.churnRate);
+      kpiRisk.textContent = fmtMoney(s.atRiskMRR);
+      if(!kpiOpp.textContent || kpiOpp.textContent==="$0") kpiOpp.textContent = fmtMoney(s.atRiskMRR*0.12);
+
+      kpiCustomersS.textContent = `of ${fmtInt(dataset.length)} total`;
+      kpiChurnS.textContent = s.churnRate>30 ? "Critical zone" : s.churnRate>20 ? "Watchlist" : "Healthy";
+      kpiChurnS.className = "s " + (s.churnRate>30?"bad":s.churnRate>20?"warn":"good");
+      kpiRiskS.textContent = `Total MRR: ${fmtMoney(s.totalMRR)}`;
+      kpiOppS.textContent = "Estimated from default 12% reduction scenario";
+
+      // Charts
+      trendChart.data.datasets[0].data = byMonthRate(filtered); trendChart.update();
+      contractChart.data.datasets[0].data = byContractChurn(filtered); contractChart.update();
+      segmentChart.data.datasets[0].data = bySegmentRate(filtered); segmentChart.update();
+      riskChart.data.datasets[0].data = riskDist(filtered); riskChart.update();
+      regionChart.data.datasets[0].data = byRegionRate(filtered); regionChart.update();
+      riskRevenueChart.data.datasets[0].data = byMonthRiskMRR(filtered); riskRevenueChart.update();
+
+      // Pivot
+      const p = pivot(filtered);
+      renderPivot(p);
+
+      // Insight + timestamp
+      buildInsight(filtered,s);
+      lastRefreshed.textContent = "Last refresh: " + new Date().toLocaleString();
+
+      // cache for actions
+      window.__filtered = filtered;
+      window.__summary = s;
+      window.__pivot = p;
+    }
+
+    // ---------------------------
+    // Events
+    // ---------------------------
+    [fSegment,fContract,fRegion,fTenure,fRisk].forEach(x=>{ x.addEventListener("change",()=>{page=1;render();}); x.addEventListener("input",()=>{page=1;render();}); });
+    fSearch.addEventListener("input",()=>{page=1;renderPivot(window.__pivot||[]);});
+
+    el("resetFilters").addEventListener("click",()=>{
+      fSegment.value="All"; fContract.value="All"; fRegion.value="All"; fTenure.value=0; fRisk.value="All"; fSearch.value="";
+      page=1; render();
+    });
+    el("simulateBtn").addEventListener("click",()=>runWhatIf(window.__summary||{atRiskMRR:0}));
+    el("exportCsv").addEventListener("click",()=>exportCSV(window.__filtered||[]));
+    el("themeToggle").addEventListener("click",()=>document.body.classList.toggle("light"));
+
+    el("prevPage").addEventListener("click",()=>{ if(page>1){page--; renderPivot(window.__pivot||[]);} });
+    el("nextPage").addEventListener("click",()=>{
+      const rows = (window.__pivot||[]).filter(r => (r.segment+" "+r.contract).toLowerCase().includes(fSearch.value.trim().toLowerCase()));
+      const totalPages = Math.max(1,Math.ceil(rows.length/pageSize));
+      if(page<totalPages){page++; renderPivot(window.__pivot||[]);}
+    });
+
+    document.querySelectorAll("th[data-sort]").forEach(th=>{
+      th.addEventListener("click",()=>{
+        const k = th.getAttribute("data-sort");
+        if(sortKey===k) sortDir = sortDir==="asc" ? "desc":"asc";
+        else { sortKey=k; sortDir="desc"; }
+        renderPivot(window.__pivot||[]);
+      });
+    });
+
+    // Power BI embed
+    el("loadPbi").addEventListener("click",()=>{
+      const url = el("pbiUrl").value.trim();
+      if(!url){ alert("Please paste a Power BI embed URL."); return; }
+      el("pbiFrame").src = url;
+    });
+    el("clearPbi").addEventListener("click",()=>{
+      el("pbiUrl").value=""; el("pbiFrame").src="";
+    });
+
+    // init
+    render();
+  </script>
+</body>
+</html>
